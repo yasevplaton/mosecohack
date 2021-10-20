@@ -1,0 +1,48 @@
+{
+  "name": "hahaton",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.4.1",
+    "@emotion/styled": "^11.3.0",
+    "@mui/material": "^5.0.1",
+    "@mui/styles": "^5.0.1",
+    "@reduxjs/toolkit": "^1.6.2",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@urbica/react-map-gl": "^1.14.3",
+    "axios": "^0.21.3",
+    "clsx": "^1.1.1",
+    "deck.gl": "^8.6.0",
+    "geojson": "^0.5.0",
+    "mapbox-gl": "^2.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-query": "^3.17.0",
+    "react-redux": "^7.2.5",
+    "react-scripts": "4.0.3",
+    "web-vitals": "^1.0.1"
+  },
+  "devDependencies": {
+    "http-proxy-middleware": "^2.0.1",
+    "node-sass": "^6.0.1",
+    "sass-loader": "^11.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11"
+  ]
+}
