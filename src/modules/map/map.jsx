@@ -1,5 +1,9 @@
 import React, { useMemo, useState } from "react";
-import MapGL, { CustomLayer } from "@urbica/react-map-gl";
+import MapGL, {
+  CustomLayer,
+  LanguageControl,
+  Popup,
+} from "@urbica/react-map-gl";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { MAPBOX_ACCESS_TOKEN } from "../../config/constants";
@@ -18,6 +22,10 @@ import styles from "./map.module.scss";
 
 const alpha = 100;
 
+function getMean(points) {
+  return points.reduce((sum, p) => (sum += p.value), 0) / points.length;
+}
+
 // const AsyncGrid = withLoading(CustomLayer);
 // const AsyncStationsLayer = withLoading(StationsLayer);
 
@@ -26,6 +34,11 @@ export const MapComponent = () => {
     latitude: 55.7558,
     longitude: 37.6173,
     zoom: 9,
+  });
+  const [popupInfo, setPopupInfo] = useState({
+    lat: 0,
+    lon: 0,
+    data: {},
   });
   const param = useSelector(getSelectedParameter);
   const { data: gridCoords } = useGridCoords();
@@ -66,6 +79,14 @@ export const MapComponent = () => {
       data: matchedGrid,
       pickable: true,
       radius: 1000,
+      onClick: (item) => {
+        const [lon, lat] = item.coordinate;
+        setPopupInfo({
+          lat,
+          lon,
+          data: item.object,
+        });
+      },
       colorRange: [
         [255, 255, 204, alpha],
         [199, 233, 180, alpha],
@@ -75,6 +96,7 @@ export const MapComponent = () => {
         [37, 52, 148, alpha],
       ],
       getPosition: (d) => [d.lon, d.lat],
+      getColorValue: getMean,
     });
   }, [matchedGrid]);
 
@@ -88,6 +110,7 @@ export const MapComponent = () => {
       zoom={viewport.zoom}
       onViewportChange={setViewport}
     >
+      <LanguageControl defaultLanguage="ru" />
       {isDataLoading && (
         <div className={styles.loadingContainer}>
           <div className={styles.loading}>
@@ -95,11 +118,23 @@ export const MapComponent = () => {
           </div>
         </div>
       )}
-      {matchedGrid && matchedStations && <CustomLayer layer={gridLayer} />}
       {stationsGeoJSON && (
         <StationsLayer
           data={matchedStations ? matchedStations : stationsGeoJSON}
         />
+      )}
+      {matchedGrid && matchedStations && (
+        <CustomLayer layer={gridLayer} before="stations" />
+      )}
+      {popupInfo && (
+        <Popup
+          longitude={popupInfo.lon}
+          latitude={popupInfo.lat}
+          closeButton={false}
+          closeOnClick={false}
+        >
+          <div>{popupInfo.data.colorValue}</div>
+        </Popup>
       )}
     </MapGL>
   );

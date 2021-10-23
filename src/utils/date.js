@@ -4,7 +4,7 @@ class CustomDate extends Date {
   }
 }
 
-export const getNextTimestamp = (timestamp, hours) => {
+export const getNextTimestamp = (timestamp, hours = 1) => {
   const newTimestamp = timestamp + hours * 3600;
   return newTimestamp;
 };

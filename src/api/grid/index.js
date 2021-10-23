@@ -30,12 +30,12 @@ export const useGridValues = (enabled) => {
   const param = useSelector(getSelectedParameter);
   const tsStart = useSelector(getTimeStampStart);
   const tsEnd = useMemo(() => {
-    return getNextTimestamp(tsStart, 1);
+    return getNextTimestamp(tsStart);
   }, [tsStart]);
 
   return useQuery(
     ["grid-values", param, tsStart, tsEnd],
     () => getGridValues(param, tsStart, tsEnd),
-    { enabled }
+    { enabled, keepPreviousData: true }
   );
 };
