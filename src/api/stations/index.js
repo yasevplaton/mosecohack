@@ -22,6 +22,13 @@ const getStationsValues = async (param, tsStart, tsEnd) => {
   return data;
 };
 
+const getStationData = async (stationId) => {
+  const data = await axios.get(
+    `/station/${stationId}/2020-12-31T00:00/2021-01-02T00:00`
+  );
+  return data;
+};
+
 export const useStationsCoords = () => {
   return useQuery("stations-coords", () => getStationsCoords());
 };
@@ -37,5 +44,24 @@ export const useStationsValues = (enabled) => {
     ["stations-values", param, tsStart, tsEnd],
     () => getStationsValues(param, tsStart, tsEnd),
     { enabled }
+  );
+};
+
+export const useStationData = (stationId, enabled = true) => {
+  const param = useSelector(getSelectedParameter);
+  return useQuery(
+    ["station-data", stationId],
+    () => getStationData(stationId),
+    {
+      enabled,
+      select: (data) => {
+        return data.map((item) => {
+          return {
+            datetime: getDate(item.datetime).formatForAPI(),
+            value: +item[param],
+          };
+        });
+      },
+    }
   );
 };

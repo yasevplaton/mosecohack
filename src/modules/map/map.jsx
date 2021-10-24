@@ -1,12 +1,8 @@
 import React, { useMemo, useState } from "react";
-import MapGL, {
-  CustomLayer,
-  LanguageControl,
-  Popup,
-} from "@urbica/react-map-gl";
+import MapGL, { CustomLayer, LanguageControl } from "@urbica/react-map-gl";
 import { MapboxLayer } from "@deck.gl/mapbox";
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
-import { MAPBOX_ACCESS_TOKEN } from "../../config/constants";
+import { colorRange, MAPBOX_ACCESS_TOKEN } from "../../config/constants";
 import {
   useGridCoords,
   useGridValues,
@@ -14,20 +10,16 @@ import {
   useStationsValues,
 } from "../../api";
 import { StationsLayer } from "./stations-layer";
-import { useSelector } from "react-redux";
-import { getSelectedParameter } from "../../root-slice/root-selectors";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getPopupVisible,
+  getSelectedParameter,
+} from "../../root-slice/root-selectors";
 import { getMatchedData, toGeoJSON } from "./utils";
 import CircularProgress from "@mui/material/CircularProgress";
 import styles from "./map.module.scss";
-
-const alpha = 100;
-
-function getMean(points) {
-  return points.reduce((sum, p) => (sum += p.value), 0) / points.length;
-}
-
-// const AsyncGrid = withLoading(CustomLayer);
-// const AsyncStationsLayer = withLoading(StationsLayer);
+import { MapPopup } from "../map-popup";
+import { setPopup } from "../../root-slice/root-slice";
 
 export const MapComponent = () => {
   const [viewport, setViewport] = useState({
@@ -35,14 +27,13 @@ export const MapComponent = () => {
     longitude: 37.6173,
     zoom: 9,
   });
-  const [popupInfo, setPopupInfo] = useState({
-    lat: 0,
-    lon: 0,
-    data: {},
-  });
   const param = useSelector(getSelectedParameter);
+  const popupVisible = useSelector(getPopupVisible);
   const { data: gridCoords } = useGridCoords();
   const { data: stationsCoords } = useStationsCoords();
+
+  const dispatch = useDispatch();
+
   const stationsGeoJSON = useMemo(() => {
     if (!stationsCoords) return;
 
@@ -78,27 +69,25 @@ export const MapComponent = () => {
       type: HexagonLayer,
       data: matchedGrid,
       pickable: true,
-      radius: 1000,
+      radius: 600,
       onClick: (item) => {
         const [lon, lat] = item.coordinate;
-        setPopupInfo({
-          lat,
-          lon,
-          data: item.object,
-        });
+        dispatch(
+          setPopup({
+            layer: "grid",
+            lon,
+            lat,
+            data: item.object,
+          })
+        );
       },
-      colorRange: [
-        [255, 255, 204, alpha],
-        [199, 233, 180, alpha],
-        [127, 205, 187, alpha],
-        [65, 182, 196, alpha],
-        [44, 127, 184, alpha],
-        [37, 52, 148, alpha],
-      ],
+      opacity: 0.5,
+      colorRange: colorRange,
       getPosition: (d) => [d.lon, d.lat],
-      getColorValue: getMean,
+      getColorValue: (points) =>
+        points.reduce((sum, p) => (sum += p.value), 0) / points.length,
     });
-  }, [matchedGrid]);
+  }, [matchedGrid, dispatch]);
 
   return (
     <MapGL
@@ -123,19 +112,8 @@ export const MapComponent = () => {
           data={matchedStations ? matchedStations : stationsGeoJSON}
         />
       )}
-      {matchedGrid && matchedStations && (
-        <CustomLayer layer={gridLayer} before="stations" />
-      )}
-      {popupInfo && (
-        <Popup
-          longitude={popupInfo.lon}
-          latitude={popupInfo.lat}
-          closeButton={false}
-          closeOnClick={false}
-        >
-          <div>{popupInfo.data.colorValue}</div>
-        </Popup>
-      )}
+      {gridLayer && <CustomLayer layer={gridLayer} before="stations" />}
+      {param && popupVisible && <MapPopup />}
     </MapGL>
   );
 };

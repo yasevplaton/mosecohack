@@ -3,6 +3,8 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedParameter } from "../../root-slice/root-selectors";
 import { setParameter } from "../../root-slice";
+import { Legend } from "../legend";
+import React from "react";
 
 const parameters = [
   { id: 1, name: "co" },
@@ -13,7 +15,7 @@ const parameters = [
 ];
 
 export const Sidebar = () => {
-  const selectedParamId = useSelector(getSelectedParameter);
+  const param = useSelector(getSelectedParameter);
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
@@ -30,7 +32,7 @@ export const Sidebar = () => {
         <Select
           labelId="demo-simple-select-autowidth-label"
           id="demo-simple-select-autowidth"
-          value={selectedParamId}
+          value={param}
           onChange={handleChange}
           label="Параметр"
         >
@@ -44,6 +46,7 @@ export const Sidebar = () => {
           })}
         </Select>
       </FormControl>
+      {param && <Legend />}
     </div>
   );
 };

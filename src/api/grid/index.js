@@ -34,8 +34,8 @@ export const useGridValues = (enabled) => {
   }, [tsStart]);
 
   return useQuery(
-    ["grid-values", param, tsStart, tsEnd],
+    ["grid-values", param, tsStart],
     () => getGridValues(param, tsStart, tsEnd),
-    { enabled, keepPreviousData: true }
+    { enabled }
   );
 };
